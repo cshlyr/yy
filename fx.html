@@ -1,0 +1,124 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<meta name="robots" content="noindex,nofollow">
+<title>转发分享量表/量表二维码链接</title>
+<meta name="keywords" content="量表二维码链接">
+<meta name="description" content="转发分享量表/量表二维码链接">
+<script src="static/js/qrcode.js"></script>
+ <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+        }
+
+        .outputImage {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="ewm" style="display: none;">
+        <img id="min" class="outputImage">
+        <div style="text-align: center;font-size: 13px;padding: 10px 0px;color: red">长按二维码保存图片或截图<br>发送二维码图片即可分享量表</div>
+    </div>
+
+    <script>
+        function createQRImage() {
+            const config = {
+                qrText: '/xl/',
+                qrSize: 100,
+                textLines: [
+                    '常用专业心理量表',
+                    '扫码打开免费在线测试'
+                ],
+                canvasWidth: 300,
+                textColor: '#333',
+                textSize: 15,
+                lineHeight: 24,
+                padding: 10,
+                qrTopMargin: 14
+            };
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 计算画布尺寸（包含顶部间距）
+            const dpr = window.devicePixelRatio || 1;
+            const textAreaHeight = config.padding * 2 + config.lineHeight * config.textLines.length;
+            const totalHeight = config.qrTopMargin + config.qrSize + textAreaHeight; // 总高度包含顶部间距
+            
+            canvas.width = config.canvasWidth * dpr;
+            canvas.style.width = config.canvasWidth + 'px';
+            canvas.height = totalHeight * dpr;
+            canvas.style.height = totalHeight + 'px';
+            
+            ctx.scale(dpr, dpr);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, config.canvasWidth, totalHeight);
+
+            const qrDiv = document.createElement('div');
+            new QRCode(qrDiv, {
+                text: config.qrText,
+                width: config.qrSize,
+                height: config.qrSize,
+                colorDark: '#000',
+                colorLight: '#fff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            var Canvasmk = window.location.hostname.substring(0, 3);
+            setTimeout(() => {
+                const qrCanvas = qrDiv.querySelector('canvas');
+                
+                const qrX = (config.canvasWidth - config.qrSize) / 2;
+                ctx.drawImage(qrCanvas, qrX, config.qrTopMargin, config.qrSize, config.qrSize);
+
+                ctx.fillStyle = config.textColor;
+                ctx.font = `${config.textSize}px system-ui, -apple-system, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                config.textLines.forEach((line, index) => {
+                    const y = config.qrTopMargin + config.qrSize + config.padding + 
+                            (index * config.lineHeight) + 
+                            (config.lineHeight / 2);
+                    ctx.fillText(line, config.canvasWidth / 2, y);
+                });
+
+                const outputImage = document.getElementById(Canvasmk);
+                outputImage.src = canvas.toDataURL('image/png');
+
+                qrDiv.remove();
+                canvas.remove();
+                document.getElementById("ewm").style.display = "block";
+            }, 100);
+        }
+
+        createQRImage();
+
+        window.addEventListener('resize', createQRImage);
+    </script>
+</body>
+</html>
